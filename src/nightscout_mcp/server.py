@@ -166,9 +166,19 @@ class NightscoutClient:
             import base64
             creds = base64.b64encode(f"{self.username}:{self.password}".encode()).decode()
             headers["Authorization"] = f"Basic {creds}"
-        if self.api_secret:
+        # Try api-secret header (works with hashed secrets)
+        if self.api_secret and len(self.api_secret) == 64:
+            # Looks like SHA256 hash, use as header
             headers["api-secret"] = self.api_secret
         return headers
+    
+    def _add_token_param(self, params: dict | None) -> dict:
+        """Add token query parameter for authentication."""
+        result = dict(params) if params else {}
+        # If api_secret looks like a readable token (not a hash), add as query param
+        if self.api_secret and len(self.api_secret) < 64:
+            result["token"] = self.api_secret
+        return result
     
     async def fetch(self, endpoint: str, params: dict | None = None) -> list | dict:
         if not self.base_url:
@@ -177,7 +187,7 @@ class NightscoutClient:
         async with httpx.AsyncClient() as client:
             resp = await client.get(
                 f"{self.base_url}{endpoint}",
-                params=params,
+                params=self._add_token_param(params),
                 headers=self._get_headers(),
                 timeout=30.0,
             )
@@ -200,7 +210,7 @@ class NightscoutClient:
             async with httpx.AsyncClient() as client:
                 resp = await client.get(
                     f"{self.base_url}/api/v1/entries.json",
-                    params=params,
+                    params=self._add_token_param(params),
                     headers=self._get_headers(),
                     timeout=30.0,
                 )

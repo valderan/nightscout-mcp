@@ -53,16 +53,18 @@ DIRECTION_ARROWS = {
 }
 
 def parse_nightscout_url(url_str: str) -> dict:
-    """Parse Nightscout URL to extract credentials."""
+    """Parse Nightscout URL to extract base URL, optional path, and token."""
     try:
         parsed = urlparse(url_str)
+        path = parsed.path.rstrip("/")
+        if path == "":
+            path = ""
         return {
-            "base_url": f"{parsed.scheme}://{parsed.hostname}" + (f":{parsed.port}" if parsed.port else ""),
-            "username": parsed.username or "",
-            "password": parsed.password or "",
+            "base_url": f"{parsed.scheme}://{parsed.hostname}" + (f":{parsed.port}" if parsed.port else "") + path,
+            "token": parsed.username or "",
         }
     except Exception:
-        return {"base_url": url_str, "username": "", "password": ""}
+        return {"base_url": url_str.rstrip("/"), "token": ""}
 
 
 def mgdl_to_mmol(mgdl: float) -> float:
@@ -168,28 +170,22 @@ class NightscoutClient:
     def __init__(self):
         config = parse_nightscout_url(NIGHTSCOUT_URL)
         self.base_url = config["base_url"]
-        self.username = config["username"]
-        self.password = config["password"]
+        self.token = config["token"]
         self.api_secret = NIGHTSCOUT_API_SECRET
     
     def _get_headers(self) -> dict:
         headers = {}
-        if self.username:
-            import base64
-            creds = base64.b64encode(f"{self.username}:{self.password}".encode()).decode()
-            headers["Authorization"] = f"Basic {creds}"
         # Try api-secret header (works with hashed secrets)
-        if self.api_secret and len(self.api_secret) == 64:
-            # Looks like SHA256 hash, use as header
+        if self.api_secret and len(self.api_secret) in (40, 64):
+            # Looks like SHA1 (40) or SHA256 (64), use as header
             headers["api-secret"] = self.api_secret
         return headers
     
     def _add_token_param(self, params: dict | None) -> dict:
         """Add token query parameter for authentication."""
         result = dict(params) if params else {}
-        # If api_secret looks like a readable token (not a hash), add as query param
-        if self.api_secret and len(self.api_secret) < 64:
-            result["token"] = self.api_secret
+        if self.token:
+            result["token"] = self.token
         return result
     
     async def fetch(self, endpoint: str, params: dict | None = None) -> list | dict:
@@ -221,7 +217,7 @@ class NightscoutClient:
             
             async with httpx.AsyncClient() as client:
                 resp = await client.get(
-                    f"{self.base_url}/api/v1/entries.json",
+                    f"{self.base_url}/api/v1/entries",
                     params=self._add_token_param(params),
                     headers=self._get_headers(),
                     timeout=30.0,
@@ -427,7 +423,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
 
 
 async def glucose_current() -> list[TextContent]:
-    entries = await client.fetch("/api/v1/entries.json", {"count": 1})
+    entries = await client.fetch("/api/v1/entries", {"count": 1})
     if not entries:
         return [TextContent(type="text", text="No glucose readings available")]
     
@@ -615,7 +611,7 @@ async def treatments(hours: int, count: int) -> list[TextContent]:
         "find[created_at][$gte]": datetime.fromtimestamp(start_dt / 1000, tz=timezone.utc).isoformat(),
     }
     
-    data = await client.fetch("/api/v1/treatments.json", params)
+    data = await client.fetch("/api/v1/treatments", params)
     if not data:
         return [TextContent(type="text", text=f"No treatments in the last {hours} hours")]
     
@@ -648,7 +644,7 @@ async def treatments(hours: int, count: int) -> list[TextContent]:
 
 
 async def status() -> list[TextContent]:
-    data = await client.fetch("/api/v1/status.json")
+    data = await client.fetch("/api/v1/status")
     
     text = f"""⚙️ Nightscout Status:
 • Name: {data.get('name', 'N/A')}
@@ -670,7 +666,7 @@ async def status() -> list[TextContent]:
 
 
 async def devices(count: int) -> list[TextContent]:
-    data = await client.fetch("/api/v1/devicestatus.json", {"count": count})
+    data = await client.fetch("/api/v1/devicestatus", {"count": count})
     if not data:
         return [TextContent(type="text", text="No device data available")]
     

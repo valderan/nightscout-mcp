@@ -2,10 +2,12 @@
 
 Access your CGM data from [Nightscout](https://nightscout.github.io/) in AI assistants like Claude, Cursor, etc.
 
+Note: this MCP server is optimized for Nightscout 14+.
+
 ## Quick Start
 
 ```bash
-uvx --from git+https://github.com/vgmakeev/nightscout-mcp nightscout-mcp
+uvx --from git+https://github.com/valderan/nightscout-mcp nightscout-mcp
 ```
 
 ## Setup
@@ -17,7 +19,7 @@ Add to your MCP config (e.g. `~/.cursor/mcp.json`):
   "mcpServers": {
     "nightscout": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/vgmakeev/nightscout-mcp", "nightscout-mcp"],
+      "args": ["--from", "git+https://github.com/valderan/nightscout-mcp", "nightscout-mcp"],
       "env": {
         "NIGHTSCOUT_URL": "https://YOUR_TOKEN@your-site.nightscout.com"
       }
@@ -35,6 +37,35 @@ Add to your MCP config (e.g. `~/.cursor/mcp.json`):
 | `GLUCOSE_UNITS` | Display units: `mmol` or `mgdl` | `mmol` |
 | `GLUCOSE_LOW` | TIR lower bound (auto-detects units: <30 = mmol) | `3.9` (70 mg/dL) |
 | `GLUCOSE_HIGH` | TIR upper bound (auto-detects units: <30 = mmol) | `7.8` (140 mg/dL) |
+| `LOCALE` | Output language: `en` or `ru` | `en` |
+
+### Local development with .env
+
+Create a `.env` file in the repo root (it is already in `.gitignore`), or copy `.env.example` and edit it:
+
+```bash
+cp .env.example .env
+```
+
+Then run:
+
+```bash
+./start-server.sh
+```
+
+or
+
+```bash
+./start-client.sh
+```
+
+## Client for verification
+
+The local client runs in interactive mode and lets you run any tool or run all tools:
+
+```bash
+uv run python scripts/test_client.py
+```
 
 ### Example with custom TIR range
 
@@ -42,12 +73,13 @@ Add to your MCP config (e.g. `~/.cursor/mcp.json`):
 {
   "nightscout": {
     "command": "uvx",
-    "args": ["--from", "git+https://github.com/vgmakeev/nightscout-mcp", "nightscout-mcp"],
+    "args": ["--from", "git+https://github.com/valderan/nightscout-mcp", "nightscout-mcp"],
     "env": {
       "NIGHTSCOUT_URL": "https://TOKEN@your-site.nightscout.com",
       "GLUCOSE_UNITS": "mmol",
       "GLUCOSE_LOW": "4.0",
-      "GLUCOSE_HIGH": "10.0"
+      "GLUCOSE_HIGH": "10.0",
+      "LOCALE": "ru"
     }
   }
 }

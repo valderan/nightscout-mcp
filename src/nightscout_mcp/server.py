@@ -16,6 +16,154 @@ NIGHTSCOUT_API_SECRET = os.environ.get("NIGHTSCOUT_API_SECRET", "")
 # Glucose units: "mgdl" or "mmol"
 GLUCOSE_UNITS = os.environ.get("GLUCOSE_UNITS", "mmol").lower()
 
+# Locale: "en" or "ru"
+LOCALE = os.environ.get("LOCALE", "en").lower()
+
+STRINGS = {
+    "en": {
+        "unknown_tool": "Unknown tool: {name}",
+        "error": "Error: {error}",
+        "no_glucose": "No glucose readings available",
+        "current_glucose": "Current glucose: {value} {arrow}",
+        "time_utc": "Time: {time} UTC",
+        "delta": "Delta: {sign}{delta}",
+        "device": "Device: {device}",
+        "history_title": "Glucose history for {hours}h ({count} readings)",
+        "statistics": "Statistics:",
+        "average": "Average: {value}",
+        "min_max": "Min/Max: {min}–{max}",
+        "tir": "TIR ({range}): {value}%",
+        "cv": "CV: {value}%",
+        "recent_readings": "Recent readings:",
+        "more_readings": "... and {count} more readings",
+        "no_data_hours": "No data for the last {hours} hours",
+        "not_enough_data": "Not enough data for analysis",
+        "analysis_title": "Glucose Analysis: {from_date} — {to_date} ({days} days, {count} readings)",
+        "key_metrics": "Key Metrics:",
+        "avg_glucose": "Average glucose: {value}",
+        "std_dev": "Standard deviation: {value}",
+        "estimated_a1c": "Estimated HbA1c: {value}%",
+        "time_in_ranges": "Time in Ranges:",
+        "severe_hypo": "Severe hypo (<3.0 mmol): {value}% (goal <1%)",
+        "hypo": "Hypoglycemia (3.0-3.9 mmol): {value}% (goal <4%)",
+        "in_target": "In target ({range}): {value}% {status} (goal ≥{goal}%)",
+        "above_target": "Above target: {value}%",
+        "high": "High (10.0-13.9 mmol): {value}%",
+        "very_high": "Very high (>13.9 mmol): {value}% (goal <5%)",
+        "assessment": "Assessment:",
+        "tir_goal_met": "✅ TIR goal of {goal}% achieved!",
+        "tir_goal_away": "⚠️ {diff}% away from TIR goal of {goal}%",
+        "cv_excellent": "✅ Excellent glucose stability",
+        "cv_good": "📊 Good stability",
+        "cv_high": "⚠️ High variability",
+        "monthly_title": "Glucose Analysis for {year} (TIR goal: {goal}%)",
+        "month_header": "Month │  TIR ({range})  │  Avg  │   CV   │  A1c  │ Readings",
+        "no_data": "No data",
+        "summary": "SUMMARY ({months} months, {count} readings)",
+        "avg_tir": "Average TIR ({range}): {value}% — {status}",
+        "avg_glucose": "Average glucose: {value}",
+        "avg_cv": "Average CV: {value}% — {status}",
+        "cv_status_stable": "✅ Stable",
+        "cv_status_ok": "📊 OK",
+        "cv_status_high": "⚠️ High",
+        "avg_a1c": "Estimated HbA1c: {value}%",
+        "best_tir": "Best TIR: {month} — {value}%",
+        "worst_tir": "Worst TIR: {month} — {value}%",
+        "treatments_title": "Treatments for {hours}h:",
+        "no_treatments": "No treatments in the last {hours} hours",
+        "totals": "Totals:",
+        "status_title": "Nightscout Status:",
+        "status_name": "Name: {value}",
+        "status_version": "Version: {value}",
+        "status_time": "Server time: {value}",
+        "status_units": "Units: {value}",
+        "thresholds": "Thresholds:",
+        "high_label": "High: {value} mg/dL",
+        "target_top": "Target top: {value} mg/dL",
+        "target_bottom": "Target bottom: {value} mg/dL",
+        "low_label": "Low: {value} mg/dL",
+        "devices_title": "Device Status:",
+        "no_device_data": "No device data available",
+        "uploader": "Uploader: battery {value}%",
+        "pump": "Pump: reservoir {reservoir}U, battery {battery}%",
+        "device_label": "Device: {value}",
+    },
+    "ru": {
+        "unknown_tool": "Неизвестный инструмент: {name}",
+        "error": "Ошибка: {error}",
+        "no_glucose": "Нет данных о глюкозе",
+        "current_glucose": "Текущая глюкоза: {value} {arrow}",
+        "time_utc": "Время: {time} UTC",
+        "delta": "Дельта: {sign}{delta}",
+        "device": "Устройство: {device}",
+        "history_title": "История глюкозы за {hours}ч ({count} измерений)",
+        "statistics": "Статистика:",
+        "average": "Среднее: {value}",
+        "min_max": "Мин/Макс: {min}–{max}",
+        "tir": "В диапазоне ({range}): {value}%",
+        "cv": "CV: {value}%",
+        "recent_readings": "Последние измерения:",
+        "more_readings": "... и еще {count} измерений",
+        "no_data_hours": "Нет данных за последние {hours} часов",
+        "not_enough_data": "Недостаточно данных для анализа",
+        "analysis_title": "Анализ глюкозы: {from_date} — {to_date} ({days} дней, {count} измерений)",
+        "key_metrics": "Ключевые метрики:",
+        "avg_glucose": "Средняя глюкоза: {value}",
+        "std_dev": "Стандартное отклонение: {value}",
+        "estimated_a1c": "Оценочный HbA1c: {value}%",
+        "time_in_ranges": "Время в диапазонах:",
+        "severe_hypo": "Тяжелая гипо (<3.0 ммоль): {value}% (цель <1%)",
+        "hypo": "Гипогликемия (3.0-3.9 ммоль): {value}% (цель <4%)",
+        "in_target": "В цели ({range}): {value}% {status} (цель ≥{goal}%)",
+        "above_target": "Выше цели: {value}%",
+        "high": "Высокий (10.0-13.9 ммоль): {value}%",
+        "very_high": "Очень высокий (>13.9 ммоль): {value}% (цель <5%)",
+        "assessment": "Оценка:",
+        "tir_goal_met": "✅ Цель TIR {goal}% достигнута!",
+        "tir_goal_away": "⚠️ До цели TIR {goal}% не хватает {diff}%",
+        "cv_excellent": "✅ Отличная стабильность",
+        "cv_good": "📊 Хорошая стабильность",
+        "cv_high": "⚠️ Высокая вариабельность",
+        "monthly_title": "Анализ глюкозы за {year} (цель TIR: {goal}%)",
+        "month_header": "Месяц │  TIR ({range})  │  Средн │   CV   │  A1c  │ Измерения",
+        "no_data": "Нет данных",
+        "summary": "ИТОГО ({months} мес., {count} измерений)",
+        "avg_tir": "Средний TIR ({range}): {value}% — {status}",
+        "avg_glucose": "Средняя глюкоза: {value}",
+        "avg_cv": "Средний CV: {value}% — {status}",
+        "cv_status_stable": "✅ Стабильно",
+        "cv_status_ok": "📊 Нормально",
+        "cv_status_high": "⚠️ Высоко",
+        "avg_a1c": "Оценочный HbA1c: {value}%",
+        "best_tir": "Лучший TIR: {month} — {value}%",
+        "worst_tir": "Худший TIR: {month} — {value}%",
+        "treatments_title": "Терапии за {hours}ч:",
+        "no_treatments": "Нет терапий за последние {hours} часов",
+        "totals": "Итого:",
+        "status_title": "Статус Nightscout:",
+        "status_name": "Имя: {value}",
+        "status_version": "Версия: {value}",
+        "status_time": "Время сервера: {value}",
+        "status_units": "Ед. измерения: {value}",
+        "thresholds": "Пороги:",
+        "high_label": "Высокий: {value} mg/dL",
+        "target_top": "Верх цели: {value} mg/dL",
+        "target_bottom": "Низ цели: {value} mg/dL",
+        "low_label": "Низкий: {value} mg/dL",
+        "devices_title": "Статус устройств:",
+        "no_device_data": "Нет данных об устройствах",
+        "uploader": "Загрузчик: батарея {value}%",
+        "pump": "Помпа: резервуар {reservoir}U, батарея {battery}%",
+        "device_label": "Устройство: {value}",
+    },
+}
+
+
+def t(key: str, **kwargs) -> str:
+    lang = "ru" if LOCALE == "ru" else "en"
+    template = STRINGS[lang].get(key, STRINGS["en"].get(key, key))
+    return template.format(**kwargs)
+
 # TIR range from environment (in mg/dL, will convert if mmol specified)
 def parse_glucose_value(env_var: str, default_mgdl: float) -> float:
     """Parse glucose value from env, auto-detect units."""
@@ -193,14 +341,32 @@ class NightscoutClient:
             raise ValueError("NIGHTSCOUT_URL environment variable is not set")
         
         async with httpx.AsyncClient() as client:
-            resp = await client.get(
-                f"{self.base_url}{endpoint}",
-                params=self._add_token_param(params),
-                headers=self._get_headers(),
-                timeout=30.0,
-            )
-            resp.raise_for_status()
+            url = f"{self.base_url}{endpoint}"
+            return await self._get_json_with_fallback(client, url, params)
+
+    async def _get_json_with_fallback(
+        self,
+        client: httpx.AsyncClient,
+        url: str,
+        params: dict | None = None,
+    ) -> list | dict:
+        headers = dict(self._get_headers())
+        headers["Accept"] = "application/json"
+
+        resp = await client.get(
+            url,
+            params=self._add_token_param(params),
+            headers=headers,
+            timeout=30.0,
+        )
+        resp.raise_for_status()
+        try:
             return resp.json()
+        except ValueError:
+            if not url.endswith(".json"):
+                return await self._get_json_with_fallback(client, url + ".json", params)
+            snippet = resp.text[:300].replace("\n", " ").strip()
+            raise ValueError(f"Non-JSON response from {url}: {snippet}")
     
     async def fetch_entries_in_range(self, start_ts: int, end_ts: int, max_per_request: int = 10000) -> list:
         """Fetch all entries in date range with pagination."""
@@ -216,14 +382,8 @@ class NightscoutClient:
             }
             
             async with httpx.AsyncClient() as client:
-                resp = await client.get(
-                    f"{self.base_url}/api/v1/entries",
-                    params=self._add_token_param(params),
-                    headers=self._get_headers(),
-                    timeout=30.0,
-                )
-                resp.raise_for_status()
-                entries = resp.json()
+                url = f"{self.base_url}/api/v1/entries"
+                entries = await self._get_json_with_fallback(client, url, params)
             
             if not entries:
                 break
@@ -417,15 +577,15 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         elif name == "devices":
             return await devices(arguments.get("count", 5))
         else:
-            return [TextContent(type="text", text=f"Unknown tool: {name}")]
+            return [TextContent(type="text", text=t("unknown_tool", name=name))]
     except Exception as e:
-        return [TextContent(type="text", text=f"Error: {e}")]
+        return [TextContent(type="text", text=t("error", error=e))]
 
 
 async def glucose_current() -> list[TextContent]:
     entries = await client.fetch("/api/v1/entries", {"count": 1})
     if not entries:
-        return [TextContent(type="text", text="No glucose readings available")]
+        return [TextContent(type="text", text=t("no_glucose"))]
     
     e = entries[0]
     arrow = DIRECTION_ARROWS.get(e.get("direction", ""), e.get("direction", ""))
@@ -433,10 +593,12 @@ async def glucose_current() -> list[TextContent]:
     delta = e.get('delta', 0)
     delta_formatted = format_glucose_short(abs(delta)) if GLUCOSE_UNITS == "mmol" else str(int(delta))
     
-    text = f"""🩸 Current glucose: {format_glucose(e['sgv'])} {arrow}
-📅 Time: {dt.strftime('%Y-%m-%d %H:%M')} UTC
-📈 Delta: {'+' if delta >= 0 else '-'}{delta_formatted}
-📱 Device: {e.get('device', 'N/A')}"""
+    text = (
+        f"🩸 {t('current_glucose', value=format_glucose(e['sgv']), arrow=arrow)}\n"
+        f"📅 {t('time_utc', time=dt.strftime('%Y-%m-%d %H:%M'))}\n"
+        f"📈 {t('delta', sign='+' if delta >= 0 else '-', delta=delta_formatted)}\n"
+        f"📱 {t('device', device=e.get('device', 'N/A'))}"
+    )
     
     return [TextContent(type="text", text=text)]
 
@@ -447,20 +609,20 @@ async def glucose_history(hours: int, count: int) -> list[TextContent]:
     
     entries = await client.fetch_entries_in_range(start_ts, now)
     if not entries:
-        return [TextContent(type="text", text=f"No data for the last {hours} hours")]
+        return [TextContent(type="text", text=t("no_data_hours", hours=hours))]
     
     sgv_values = filter_valid_sgv(entries)
     stats = calculate_stats(sgv_values)
     
-    text = f"""📊 Glucose history for {hours}h ({len(sgv_values)} readings)
-
-📈 Statistics:
-• Average: {stats['avg_formatted']}
-• Min/Max: {format_glucose_short(stats['min'])}–{format_glucose_short(stats['max'])}
-• TIR ({get_tir_range_label()}): {stats['tir']}%
-• CV: {stats['cv']}%
-
-📋 Recent readings:"""
+    text = (
+        f"📊 {t('history_title', hours=hours, count=len(sgv_values))}\n\n"
+        f"📈 {t('statistics')}\n"
+        f"• {t('average', value=stats['avg_formatted'])}\n"
+        f"• {t('min_max', min=format_glucose_short(stats['min']), max=format_glucose_short(stats['max']))}\n"
+        f"• {t('tir', range=get_tir_range_label(), value=stats['tir'])}\n"
+        f"• {t('cv', value=stats['cv'])}\n\n"
+        f"📋 {t('recent_readings')}"
+    )
     
     # Filter out sensor errors for display
     valid_entries = [e for e in entries if e.get("sgv") and e["sgv"] >= GLUCOSE_MIN_VALID]
@@ -470,7 +632,7 @@ async def glucose_history(hours: int, count: int) -> list[TextContent]:
         text += f"\n• {dt.strftime('%m-%d %H:%M')}: {format_glucose_short(e['sgv'])} {arrow}"
     
     if len(valid_entries) > 15:
-        text += f"\n... and {len(valid_entries) - 15} more readings"
+        text += f"\n{t('more_readings', count=len(valid_entries) - 15)}"
     
     return [TextContent(type="text", text=text)]
 
@@ -491,7 +653,7 @@ async def analyze(from_date: str, to_date: str | None, tir_goal: int) -> list[Te
     
     entries = await client.fetch_entries_in_range(start_ts, end_ts)
     if len(entries) < 10:
-        return [TextContent(type="text", text="Not enough data for analysis")]
+        return [TextContent(type="text", text=t("not_enough_data"))]
     
     sgv_values = filter_valid_sgv(entries)
     stats = calculate_stats(sgv_values)
@@ -505,49 +667,53 @@ async def analyze(from_date: str, to_date: str | None, tir_goal: int) -> list[Te
     
     tir_label = get_tir_range_label()
     
-    text = f"""📊 Glucose Analysis: {from_dt.strftime('%Y-%m-%d')} — {to_dt.strftime('%Y-%m-%d')} ({days} days, {stats['count']:,} readings)
-
-📈 Key Metrics:
-• Average glucose: {stats['avg_formatted']}
-• Min/Max: {format_glucose_short(stats['min'])}–{format_glucose_short(stats['max'])}
-• Standard deviation: {stats['std_dev_formatted']}
-• CV: {stats['cv']}% {cv_status}
-• Estimated HbA1c: {stats['a1c']}%
-
-🎯 Time in Ranges:
-• 🔴 Severe hypo (<3.0 mmol): {stats['very_low_pct']}% (goal <1%)
-• 🟠 Hypoglycemia (3.0-3.9 mmol): {stats['low_pct']}% (goal <4%)
-• 🟢 In target ({tir_label}): {stats['tir']}% {tir_status} (goal ≥{tir_goal}%)
-• 🟡 Above target: {stats['above_target_pct']}%
-• 🟠 High (10.0-13.9 mmol): {stats['high_pct']}%
-• 🔴 Very high (>13.9 mmol): {stats['very_high_pct']}% (goal <5%)
-
-💡 Assessment:"""
+    count_str = f"{stats['count']:,}"
+    text = (
+        f"📊 {t('analysis_title', from_date=from_dt.strftime('%Y-%m-%d'), to_date=to_dt.strftime('%Y-%m-%d'), days=days, count=count_str)}\n\n"
+        f"📈 {t('key_metrics')}\n"
+        f"• {t('avg_glucose', value=stats['avg_formatted'])}\n"
+        f"• {t('min_max', min=format_glucose_short(stats['min']), max=format_glucose_short(stats['max']))}\n"
+        f"• {t('std_dev', value=stats['std_dev_formatted'])}\n"
+        f"• {t('cv', value=stats['cv'])} {cv_status}\n"
+        f"• {t('estimated_a1c', value=stats['a1c'])}\n\n"
+        f"🎯 {t('time_in_ranges')}\n"
+        f"• 🔴 {t('severe_hypo', value=stats['very_low_pct'])}\n"
+        f"• 🟠 {t('hypo', value=stats['low_pct'])}\n"
+        f"• 🟢 {t('in_target', range=tir_label, value=stats['tir'], status=tir_status, goal=tir_goal)}\n"
+        f"• 🟡 {t('above_target', value=stats['above_target_pct'])}\n"
+        f"• 🟠 {t('high', value=stats['high_pct'])}\n"
+        f"• 🔴 {t('very_high', value=stats['very_high_pct'])}\n\n"
+        f"💡 {t('assessment')}"
+    )
     
     if stats["tir"] >= tir_goal:
-        text += f"\n• ✅ TIR goal of {tir_goal}% achieved!"
+        text += f"\n• {t('tir_goal_met', goal=tir_goal)}"
     else:
-        text += f"\n• ⚠️ {tir_goal - stats['tir']:.1f}% away from TIR goal of {tir_goal}%"
+        diff_str = f"{tir_goal - stats['tir']:.1f}"
+        text += f"\n• {t('tir_goal_away', diff=diff_str, goal=tir_goal)}"
     
     if stats["cv"] <= 33:
-        text += "\n• ✅ Excellent glucose stability"
+        text += f"\n• {t('cv_excellent')}"
     elif stats["cv"] <= 36:
-        text += "\n• 📊 Good stability"
+        text += f"\n• {t('cv_good')}"
     else:
-        text += "\n• ⚠️ High variability"
+        text += f"\n• {t('cv_high')}"
     
     return [TextContent(type="text", text=text)]
 
 
 async def analyze_monthly(year: int, from_month: int, to_month: int, tir_goal: int) -> list[TextContent]:
-    month_names = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    if LOCALE == "ru":
+        month_names = ["", "Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"]
+    else:
+        month_names = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     results = []
     
     tir_label = get_tir_range_label()
     
-    text = f"📊 Glucose Analysis for {year} (TIR goal: {tir_goal}%)\n"
+    text = f"📊 {t('monthly_title', year=year, goal=tir_goal)}\n"
     text += "=" * 80 + "\n"
-    text += f"Month │  TIR ({tir_label})  │  Avg  │   CV   │  A1c  │ Readings\n"
+    text += f"{t('month_header', range=tir_label)}\n"
     text += "-" * 80 + "\n"
     
     for month in range(from_month, to_month + 1):
@@ -571,7 +737,7 @@ async def analyze_monthly(year: int, from_month: int, to_month: int, tir_goal: i
                 cv_emoji = "✅" if stats["cv"] <= 33 else "⚠️" if stats["cv"] <= 36 else "❌"
                 text += f"{month_names[month]:5} │ {stats['tir']:6.1f}% {tir_emoji}    │ {stats['avg_formatted']:>5} │ {stats['cv']:5.1f}% {cv_emoji} │ {stats['a1c']:4.1f}% │ {stats['count']:>8,}\n"
             else:
-                text += f"{month_names[month]:5} │ No data\n"
+                text += f"{month_names[month]:5} │ {t('no_data')}\n"
         except Exception as e:
             text += f"{month_names[month]:5} │ Error: {str(e)[:40]}\n"
     
@@ -586,18 +752,27 @@ async def analyze_monthly(year: int, from_month: int, to_month: int, tir_goal: i
         
         tir_status = "✅ GOAL MET" if avg_tir >= tir_goal else f"⚠️ {tir_goal - avg_tir:.1f}% to goal"
         
-        text += f"\n📈 SUMMARY ({len(results)} months, {total_count:,} readings)\n"
+        total_str = f"{total_count:,}"
+        text += f"\n📈 {t('summary', months=len(results), count=total_str)}\n"
         text += "-" * 60 + "\n"
-        text += f"🎯 Average TIR ({tir_label}): {avg_tir:.1f}% — {tir_status}\n"
-        text += f"📊 Average glucose: {format_glucose(avg_glucose)}\n"
-        text += f"📉 Average CV: {avg_cv:.1f}% — {'✅ Stable' if avg_cv <= 33 else '📊 OK' if avg_cv <= 36 else '⚠️ High'}\n"
-        text += f"🩸 Estimated HbA1c: {avg_a1c:.1f}%\n"
+        text += f"🎯 {t('avg_tir', range=tir_label, value=f'{avg_tir:.1f}', status=tir_status)}\n"
+        text += f"📊 {t('avg_glucose', value=format_glucose(avg_glucose))}\n"
+        if avg_cv <= 33:
+            cv_status_label = t("cv_status_stable")
+        elif avg_cv <= 36:
+            cv_status_label = t("cv_status_ok")
+        else:
+            cv_status_label = t("cv_status_high")
+        text += f"📉 {t('avg_cv', value=f'{avg_cv:.1f}', status=cv_status_label)}\n"
+        text += f"🩸 {t('avg_a1c', value=f'{avg_a1c:.1f}')}\n"
         
         # Best/worst
         best = max(results, key=lambda r: r["stats"]["tir"])
         worst = min(results, key=lambda r: r["stats"]["tir"])
-        text += f"\n🏆 Best TIR: {month_names[best['month']]} — {best['stats']['tir']:.1f}%\n"
-        text += f"📉 Worst TIR: {month_names[worst['month']]} — {worst['stats']['tir']:.1f}%\n"
+        best_tir_str = f"{best['stats']['tir']:.1f}"
+        worst_tir_str = f"{worst['stats']['tir']:.1f}"
+        text += f"\n🏆 {t('best_tir', month=month_names[best['month']], value=best_tir_str)}\n"
+        text += f"📉 {t('worst_tir', month=month_names[worst['month']], value=worst_tir_str)}\n"
     
     return [TextContent(type="text", text=text)]
 
@@ -613,11 +788,11 @@ async def treatments(hours: int, count: int) -> list[TextContent]:
     
     data = await client.fetch("/api/v1/treatments", params)
     if not data:
-        return [TextContent(type="text", text=f"No treatments in the last {hours} hours")]
+        return [TextContent(type="text", text=t("no_treatments", hours=hours))]
     
     total_insulin = 0
     total_carbs = 0
-    text = f"💉 Treatments for {hours}h:\n"
+    text = f"💉 {t('treatments_title', hours=hours)}\n"
     
     for t in data:
         dt = datetime.fromisoformat(t["created_at"].replace("Z", "+00:00"))
@@ -634,7 +809,7 @@ async def treatments(hours: int, count: int) -> list[TextContent]:
             line += f"📝 {t['notes']}"
         text += line + "\n"
     
-    text += f"\n📊 Totals:"
+    text += f"\n📊 {t('totals')}"
     if total_insulin > 0:
         text += f" 💉 {total_insulin:.1f} U"
     if total_carbs > 0:
@@ -646,21 +821,23 @@ async def treatments(hours: int, count: int) -> list[TextContent]:
 async def status() -> list[TextContent]:
     data = await client.fetch("/api/v1/status")
     
-    text = f"""⚙️ Nightscout Status:
-• Name: {data.get('name', 'N/A')}
-• Version: {data.get('version', 'N/A')}
-• Server time: {data.get('serverTime', 'N/A')}
-• Units: {data.get('settings', {}).get('units', 'mg/dl')}"""
+    text = (
+        f"⚙️ {t('status_title')}\n"
+        f"• {t('status_name', value=data.get('name', 'N/A'))}\n"
+        f"• {t('status_version', value=data.get('version', 'N/A'))}\n"
+        f"• {t('status_time', value=data.get('serverTime', 'N/A'))}\n"
+        f"• {t('status_units', value=data.get('settings', {}).get('units', 'mg/dl'))}"
+    )
     
     thresholds = data.get("settings", {}).get("thresholds")
     if thresholds:
-        text += f"""
-
-🎯 Thresholds:
-• High: {thresholds.get('bgHigh')} mg/dL
-• Target top: {thresholds.get('bgTargetTop')} mg/dL
-• Target bottom: {thresholds.get('bgTargetBottom')} mg/dL
-• Low: {thresholds.get('bgLow')} mg/dL"""
+        text += (
+            f"\n\n🎯 {t('thresholds')}\n"
+            f"• {t('high_label', value=thresholds.get('bgHigh'))}\n"
+            f"• {t('target_top', value=thresholds.get('bgTargetTop'))}\n"
+            f"• {t('target_bottom', value=thresholds.get('bgTargetBottom'))}\n"
+            f"• {t('low_label', value=thresholds.get('bgLow'))}"
+        )
     
     return [TextContent(type="text", text=text)]
 
@@ -668,20 +845,20 @@ async def status() -> list[TextContent]:
 async def devices(count: int) -> list[TextContent]:
     data = await client.fetch("/api/v1/devicestatus", {"count": count})
     if not data:
-        return [TextContent(type="text", text="No device data available")]
+        return [TextContent(type="text", text=t("no_device_data"))]
     
-    text = "📱 Device Status:\n"
+    text = f"📱 {t('devices_title')}\n"
     
     for d in data:
         dt = datetime.fromisoformat(d["created_at"].replace("Z", "+00:00"))
         text += f"\n⏰ {dt.strftime('%H:%M')}:"
         if d.get("uploader"):
-            text += f"\n  📱 Uploader: battery {d['uploader'].get('battery', '?')}%"
+            text += f"\n  📱 {t('uploader', value=d['uploader'].get('battery', '?'))}"
         if d.get("pump"):
             pump = d["pump"]
-            text += f"\n  💉 Pump: reservoir {pump.get('reservoir', '?')}U, battery {pump.get('battery', {}).get('percent', '?')}%"
+            text += f"\n  💉 {t('pump', reservoir=pump.get('reservoir', '?'), battery=pump.get('battery', {}).get('percent', '?'))}"
         if d.get("device"):
-            text += f"\n  📡 Device: {d['device']}"
+            text += f"\n  📡 {t('device_label', value=d['device'])}"
     
     return [TextContent(type="text", text=text)]
 

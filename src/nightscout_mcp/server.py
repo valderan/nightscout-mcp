@@ -2,7 +2,7 @@
 
 import os
 import asyncio
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from urllib.parse import urlparse
 import httpx
 from mcp.server import Server
@@ -18,6 +18,30 @@ GLUCOSE_UNITS = os.environ.get("GLUCOSE_UNITS", "mmol").lower()
 
 # Locale: "en" or "ru"
 LOCALE = os.environ.get("LOCALE", "en").lower()
+# Local time display, format: GMT+3, GMT-5, +3, -5
+LOCALTIME = os.environ.get("LOCALTIME", "").strip()
+
+
+def _get_display_tz() -> tuple[timezone, str]:
+    if not LOCALTIME:
+        return timezone.utc, "UTC"
+    import re
+
+    match = re.match(r"^(?:GMT|UTC)?\s*([+-]\d{1,2})$", LOCALTIME, re.I)
+    if not match:
+        return timezone.utc, "UTC"
+    hours = int(match.group(1))
+    if hours < -12 or hours > 14:
+        return timezone.utc, "UTC"
+    label = f"GMT{hours:+d}"
+    return timezone(timedelta(hours=hours)), label
+
+
+DISPLAY_TZ, DISPLAY_TZ_LABEL = _get_display_tz()
+
+
+def to_display_tz(dt: datetime) -> datetime:
+    return dt.astimezone(DISPLAY_TZ)
 
 STRINGS = {
     "en": {
@@ -25,7 +49,7 @@ STRINGS = {
         "error": "Error: {error}",
         "no_glucose": "No glucose readings available",
         "current_glucose": "Current glucose: {value} {arrow}",
-        "time_utc": "Time: {time} UTC",
+        "time_tz": "Time: {time} {tz}",
         "delta": "Delta: {sign}{delta}",
         "device": "Device: {device}",
         "history_title": "Glucose history for {hours}h ({count} readings)",
@@ -72,16 +96,22 @@ STRINGS = {
         "treatments_title": "Treatments for {hours}h:",
         "no_treatments": "No treatments in the last {hours} hours",
         "totals": "Totals:",
+        "insulin_log_title": "Insulin doses for {hours}h:",
+        "no_insulin": "No insulin doses in the last {hours} hours",
+        "insulin_total": "Total insulin: {value} U",
+        "pump_reservoir_title": "Pump reservoir",
+        "no_pump_data": "No pump reservoir data available",
+        "reservoir_value": "Reservoir: {value} U",
         "status_title": "Nightscout Status:",
         "status_name": "Name: {value}",
         "status_version": "Version: {value}",
         "status_time": "Server time: {value}",
         "status_units": "Units: {value}",
         "thresholds": "Thresholds:",
-        "high_label": "High: {value} mg/dL",
-        "target_top": "Target top: {value} mg/dL",
-        "target_bottom": "Target bottom: {value} mg/dL",
-        "low_label": "Low: {value} mg/dL",
+        "high_label": "High: {value}",
+        "target_top": "Target top: {value}",
+        "target_bottom": "Target bottom: {value}",
+        "low_label": "Low: {value}",
         "devices_title": "Device Status:",
         "no_device_data": "No device data available",
         "uploader": "Uploader: battery {value}%",
@@ -93,7 +123,7 @@ STRINGS = {
         "error": "Ошибка: {error}",
         "no_glucose": "Нет данных о глюкозе",
         "current_glucose": "Текущая глюкоза: {value} {arrow}",
-        "time_utc": "Время: {time} UTC",
+        "time_tz": "Время: {time} {tz}",
         "delta": "Дельта: {sign}{delta}",
         "device": "Устройство: {device}",
         "history_title": "История глюкозы за {hours}ч ({count} измерений)",
@@ -140,16 +170,22 @@ STRINGS = {
         "treatments_title": "Терапии за {hours}ч:",
         "no_treatments": "Нет терапий за последние {hours} часов",
         "totals": "Итого:",
+        "insulin_log_title": "Инсулин за {hours}ч:",
+        "no_insulin": "Нет инсулина за последние {hours} часов",
+        "insulin_total": "Всего инсулина: {value} U",
+        "pump_reservoir_title": "Остаток инсулина",
+        "no_pump_data": "Нет данных об остатке инсулина",
+        "reservoir_value": "Остаток: {value} U",
         "status_title": "Статус Nightscout:",
         "status_name": "Имя: {value}",
         "status_version": "Версия: {value}",
         "status_time": "Время сервера: {value}",
         "status_units": "Ед. измерения: {value}",
         "thresholds": "Пороги:",
-        "high_label": "Высокий: {value} mg/dL",
-        "target_top": "Верх цели: {value} mg/dL",
-        "target_bottom": "Низ цели: {value} mg/dL",
-        "low_label": "Низкий: {value} mg/dL",
+        "high_label": "Высокий: {value}",
+        "target_top": "Верх цели: {value}",
+        "target_bottom": "Низ цели: {value}",
+        "low_label": "Низкий: {value}",
         "devices_title": "Статус устройств:",
         "no_device_data": "Нет данных об устройствах",
         "uploader": "Загрузчик: батарея {value}%",
@@ -521,6 +557,34 @@ async def list_tools() -> list[Tool]:
             },
         ),
         Tool(
+            name="insulin_log",
+            description="Get insulin doses for a specified period",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "hours": {
+                        "type": "number",
+                        "description": "Hours of history (up to 7 days)",
+                        "default": 24,
+                        "minimum": 1,
+                        "maximum": 168,
+                    },
+                    "count": {
+                        "type": "number",
+                        "description": "Maximum insulin entries to return",
+                        "default": 50,
+                        "minimum": 1,
+                        "maximum": 200,
+                    },
+                },
+            },
+        ),
+        Tool(
+            name="pump_reservoir",
+            description="Get current insulin reservoir from pump status",
+            inputSchema={"type": "object", "properties": {}, "required": []},
+        ),
+        Tool(
             name="status",
             description="Get Nightscout server status and settings",
             inputSchema={"type": "object", "properties": {}, "required": []},
@@ -572,6 +636,13 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 arguments.get("hours", 24),
                 arguments.get("count", 50),
             )
+        elif name == "insulin_log":
+            return await insulin_log(
+                arguments.get("hours", 24),
+                arguments.get("count", 50),
+            )
+        elif name == "pump_reservoir":
+            return await pump_reservoir()
         elif name == "status":
             return await status()
         elif name == "devices":
@@ -589,13 +660,13 @@ async def glucose_current() -> list[TextContent]:
     
     e = entries[0]
     arrow = DIRECTION_ARROWS.get(e.get("direction", ""), e.get("direction", ""))
-    dt = datetime.fromtimestamp(e["date"] / 1000, tz=timezone.utc)
+    dt = to_display_tz(datetime.fromtimestamp(e["date"] / 1000, tz=timezone.utc))
     delta = e.get('delta', 0)
     delta_formatted = format_glucose_short(abs(delta)) if GLUCOSE_UNITS == "mmol" else str(int(delta))
     
     text = (
         f"🩸 {t('current_glucose', value=format_glucose(e['sgv']), arrow=arrow)}\n"
-        f"📅 {t('time_utc', time=dt.strftime('%Y-%m-%d %H:%M'))}\n"
+        f"📅 {t('time_tz', time=dt.strftime('%Y-%m-%d %H:%M'), tz=DISPLAY_TZ_LABEL)}\n"
         f"📈 {t('delta', sign='+' if delta >= 0 else '-', delta=delta_formatted)}\n"
         f"📱 {t('device', device=e.get('device', 'N/A'))}"
     )
@@ -627,7 +698,7 @@ async def glucose_history(hours: int, count: int) -> list[TextContent]:
     # Filter out sensor errors for display
     valid_entries = [e for e in entries if e.get("sgv") and e["sgv"] >= GLUCOSE_MIN_VALID]
     for e in valid_entries[:min(count, 15)]:
-        dt = datetime.fromtimestamp(e["date"] / 1000, tz=timezone.utc)
+        dt = to_display_tz(datetime.fromtimestamp(e["date"] / 1000, tz=timezone.utc))
         arrow = DIRECTION_ARROWS.get(e.get("direction", ""), "")
         text += f"\n• {dt.strftime('%m-%d %H:%M')}: {format_glucose_short(e['sgv'])} {arrow}"
     
@@ -658,8 +729,8 @@ async def analyze(from_date: str, to_date: str | None, tir_goal: int) -> list[Te
     sgv_values = filter_valid_sgv(entries)
     stats = calculate_stats(sgv_values)
     
-    from_dt = datetime.fromtimestamp(start_ts / 1000, tz=timezone.utc)
-    to_dt = datetime.fromtimestamp(end_ts / 1000, tz=timezone.utc)
+    from_dt = to_display_tz(datetime.fromtimestamp(start_ts / 1000, tz=timezone.utc))
+    to_dt = to_display_tz(datetime.fromtimestamp(end_ts / 1000, tz=timezone.utc))
     days = (end_ts - start_ts) // 86400000
     
     tir_status = "✅" if stats["tir"] >= tir_goal else "⚠️" if stats["tir"] >= 70 else "❌"
@@ -795,7 +866,7 @@ async def treatments(hours: int, count: int) -> list[TextContent]:
     text = f"💉 {t('treatments_title', hours=hours)}\n"
     
     for t in data:
-        dt = datetime.fromisoformat(t["created_at"].replace("Z", "+00:00"))
+        dt = to_display_tz(datetime.fromisoformat(t["created_at"].replace("Z", "+00:00")))
         line = f"• {dt.strftime('%m-%d %H:%M')}: "
         if t.get("eventType"):
             line += f"[{t['eventType']}] "
@@ -818,25 +889,96 @@ async def treatments(hours: int, count: int) -> list[TextContent]:
     return [TextContent(type="text", text=text)]
 
 
+async def insulin_log(hours: int, count: int) -> list[TextContent]:
+    now = datetime.now(timezone.utc)
+    start_dt = now.timestamp() * 1000 - hours * 60 * 60 * 1000
+
+    params = {
+        "count": count,
+        "find[created_at][$gte]": datetime.fromtimestamp(start_dt / 1000, tz=timezone.utc).isoformat(),
+        "find[insulin][$gt]": "0",
+    }
+
+    data = await client.fetch("/api/v1/treatments", params)
+    if not data:
+        return [TextContent(type="text", text=t("no_insulin", hours=hours))]
+
+    total_insulin = 0
+    text = f"💉 {t('insulin_log_title', hours=hours)}\n"
+
+    for tmt in data:
+        dt = to_display_tz(datetime.fromisoformat(tmt["created_at"].replace("Z", "+00:00")))
+        line = f"• {dt.strftime('%m-%d %H:%M')}: "
+        if tmt.get("eventType"):
+            line += f"[{tmt['eventType']}] "
+        if tmt.get("insulin"):
+            line += f"💉 {tmt['insulin']} U "
+            total_insulin += tmt["insulin"]
+        if tmt.get("notes"):
+            line += f"📝 {tmt['notes']}"
+        text += line + "\n"
+
+    text += f"\n📊 {t('insulin_total', value=f'{total_insulin:.1f}')}"
+
+    return [TextContent(type="text", text=text)]
+
+
+async def pump_reservoir() -> list[TextContent]:
+    data = await client.fetch("/api/v1/devicestatus", {"count": 1})
+    if not data:
+        return [TextContent(type="text", text=t("no_pump_data"))]
+
+    reservoir = None
+    created_at = None
+    for d in data:
+        pump = d.get("pump")
+        if pump and pump.get("reservoir") is not None:
+            reservoir = pump.get("reservoir")
+            created_at = d.get("created_at")
+            break
+
+    if reservoir is None:
+        return [TextContent(type="text", text=t("no_pump_data"))]
+
+    time_part = ""
+    if created_at:
+        dt = to_display_tz(datetime.fromisoformat(created_at.replace("Z", "+00:00")))
+        time_part = f"\n📅 {t('time_tz', time=dt.strftime('%Y-%m-%d %H:%M'), tz=DISPLAY_TZ_LABEL)}"
+
+    text = f"🧪 {t('pump_reservoir_title')}\n• {t('reservoir_value', value=reservoir)}{time_part}"
+    return [TextContent(type="text", text=text)]
+
+
 async def status() -> list[TextContent]:
     data = await client.fetch("/api/v1/status")
     
+    units_label = "mmol" if GLUCOSE_UNITS == "mmol" else "mg/dl"
     text = (
         f"⚙️ {t('status_title')}\n"
         f"• {t('status_name', value=data.get('name', 'N/A'))}\n"
         f"• {t('status_version', value=data.get('version', 'N/A'))}\n"
         f"• {t('status_time', value=data.get('serverTime', 'N/A'))}\n"
-        f"• {t('status_units', value=data.get('settings', {}).get('units', 'mg/dl'))}"
+        f"• {t('status_units', value=units_label)}"
     )
     
     thresholds = data.get("settings", {}).get("thresholds")
     if thresholds:
+        high = thresholds.get("bgHigh")
+        top = thresholds.get("bgTargetTop")
+        bottom = thresholds.get("bgTargetBottom")
+        low = thresholds.get("bgLow")
+
+        def _fmt_threshold(val):
+            if val is None:
+                return "N/A"
+            return format_glucose(val)
+
         text += (
             f"\n\n🎯 {t('thresholds')}\n"
-            f"• {t('high_label', value=thresholds.get('bgHigh'))}\n"
-            f"• {t('target_top', value=thresholds.get('bgTargetTop'))}\n"
-            f"• {t('target_bottom', value=thresholds.get('bgTargetBottom'))}\n"
-            f"• {t('low_label', value=thresholds.get('bgLow'))}"
+            f"• {t('high_label', value=_fmt_threshold(high))}\n"
+            f"• {t('target_top', value=_fmt_threshold(top))}\n"
+            f"• {t('target_bottom', value=_fmt_threshold(bottom))}\n"
+            f"• {t('low_label', value=_fmt_threshold(low))}"
         )
     
     return [TextContent(type="text", text=text)]
@@ -850,7 +992,7 @@ async def devices(count: int) -> list[TextContent]:
     text = f"📱 {t('devices_title')}\n"
     
     for d in data:
-        dt = datetime.fromisoformat(d["created_at"].replace("Z", "+00:00"))
+        dt = to_display_tz(datetime.fromisoformat(d["created_at"].replace("Z", "+00:00")))
         text += f"\n⏰ {dt.strftime('%H:%M')}:"
         if d.get("uploader"):
             text += f"\n  📱 {t('uploader', value=d['uploader'].get('battery', '?'))}"

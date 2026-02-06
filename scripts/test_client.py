@@ -43,6 +43,8 @@ STRINGS = {
         "treatments": "treatments",
         "status": "status",
         "devices": "devices",
+        "insulin_log": "insulin_log",
+        "pump_reservoir": "pump_reservoir",
         "run_all": "run all",
         "hours": "Hours (1-720)",
         "max_readings": "Max readings to show",
@@ -55,6 +57,8 @@ STRINGS = {
         "treatments_hours": "Hours (1-168)",
         "treatments_count": "Max treatments to return",
         "device_count": "Device entries count",
+        "insulin_hours": "Hours (1-168)",
+        "insulin_count": "Max insulin entries to return",
         "error": "Error: {error}",
     },
     "ru": {
@@ -72,6 +76,8 @@ STRINGS = {
         "treatments": "treatments",
         "status": "status",
         "devices": "devices",
+        "insulin_log": "insulin_log",
+        "pump_reservoir": "pump_reservoir",
         "run_all": "запустить все",
         "hours": "Часы (1-720)",
         "max_readings": "Макс. показаний",
@@ -84,6 +90,8 @@ STRINGS = {
         "treatments_hours": "Часы (1-168)",
         "treatments_count": "Макс. терапий",
         "device_count": "Кол-во записей устройств",
+        "insulin_hours": "Часы (1-168)",
+        "insulin_count": "Макс. инсулин. записей",
         "error": "Ошибка: {error}",
     },
 }
@@ -149,6 +157,16 @@ async def _call_devices() -> None:
     _print_result(await ns.devices(count))
 
 
+async def _call_insulin_log() -> None:
+    hours = _read_int(t("insulin_hours"), default=24)
+    count = _read_int(t("insulin_count"), default=50)
+    _print_result(await ns.insulin_log(hours, count))
+
+
+async def _call_pump_reservoir() -> None:
+    _print_result(await ns.pump_reservoir())
+
+
 async def _call_all() -> None:
     print("\n== glucose_current ==")
     await _call_glucose_current()
@@ -160,6 +178,10 @@ async def _call_all() -> None:
     await _call_analyze_monthly()
     print("\n== treatments ==")
     await _call_treatments()
+    print("\n== insulin_log ==")
+    await _call_insulin_log()
+    print("\n== pump_reservoir ==")
+    await _call_pump_reservoir()
     print("\n== status ==")
     await _call_status()
     print("\n== devices ==")
@@ -187,9 +209,11 @@ MENU: dict[str, tuple[str, Callable[[], Awaitable[None]]]] = {
     "3": (t("analyze"), _call_analyze),
     "4": (t("analyze_monthly"), _call_analyze_monthly),
     "5": (t("treatments"), _call_treatments),
-    "6": (t("status"), _call_status),
-    "7": (t("devices"), _call_devices),
-    "8": (t("run_all"), _call_all),
+    "6": (t("insulin_log"), _call_insulin_log),
+    "7": (t("pump_reservoir"), _call_pump_reservoir),
+    "8": (t("status"), _call_status),
+    "9": (t("devices"), _call_devices),
+    "10": (t("run_all"), _call_all),
 }
 
 

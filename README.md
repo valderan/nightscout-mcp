@@ -4,6 +4,8 @@ Access your CGM data from [Nightscout](https://nightscout.github.io/) in AI assi
 
 Note: this MCP server is optimized for Nightscout 14+.
 
+Русская инструкция: `README_ru.md`
+
 ## Quick Start
 
 ```bash
@@ -38,6 +40,7 @@ Add to your MCP config (e.g. `~/.cursor/mcp.json`):
 | `GLUCOSE_LOW` | TIR lower bound (auto-detects units: <30 = mmol) | `3.9` (70 mg/dL) |
 | `GLUCOSE_HIGH` | TIR upper bound (auto-detects units: <30 = mmol) | `7.8` (140 mg/dL) |
 | `LOCALE` | Output language: `en` or `ru` | `en` |
+| `LOCALTIME` | Display timezone, format `GMT+N` or `GMT-N` | `UTC` |
 
 ### Local development with .env
 
@@ -94,6 +97,8 @@ uv run python scripts/test_client.py
 | `analyze` | TIR, CV, HbA1c for any date range |
 | `analyze_monthly` | Monthly breakdown for a year |
 | `treatments` | Insulin and carbs log |
+| `insulin_log` | Insulin doses for a period |
+| `pump_reservoir` | Current pump reservoir |
 | `status` | Nightscout server status |
 | `devices` | Pump, CGM, uploader status |
 

@@ -4,6 +4,8 @@
 
 Важно: MCP оптимизирован для Nightscout версии 14+.
 
+English README: `README.md`
+
 ## Быстрый старт
 
 ```bash
@@ -39,6 +41,7 @@ uvx --from git+https://github.com/vgmakeev/nightscout-mcp nightscout-mcp
 | `GLUCOSE_LOW` | Нижняя граница диапазона TIR (авто-определение единиц: <30 = mmol) | `3.9` (70 mg/dL) |
 | `GLUCOSE_HIGH` | Верхняя граница диапазона TIR (авто-определение единиц: <30 = mmol) | `7.8` (140 mg/dL) |
 | `LOCALE` | Язык вывода: `en` или `ru` | `en` |
+| `LOCALTIME` | Часовой пояс отображения: `GMT+N` или `GMT-N` | `UTC` |
 
 ### Пример с пользовательским диапазоном TIR
 
@@ -95,6 +98,8 @@ uv run python scripts/test_client.py
 | `analyze` | TIR, CV, HbA1c за любой период |
 | `analyze_monthly` | Помесячная аналитика за год |
 | `treatments` | Инсулин и углеводы |
+| `insulin_log` | Дозы инсулина за период |
+| `pump_reservoir` | Текущий остаток в помпе |
 | `status` | Статус Nightscout |
 | `devices` | Статус помпы, CGM, загрузчика |
 
